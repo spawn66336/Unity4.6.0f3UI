@@ -60,6 +60,10 @@ namespace UnityEngine.UI
         }
 
         private static readonly Comparison<ICanvasElement> s_SortLayoutFunction = SortLayoutList;
+
+        //每帧会调用此函数，执行本帧需要重建显示元素的操作。重建分为两个阶段
+        //一个是Layout（布局）重建。一个是显示元素重建。布局重建在显示元素重建
+        //阶段前
         private void PerformUpdate()
         {
             // So MB's override the == operator for null equality, which checks
@@ -70,6 +74,8 @@ namespace UnityEngine.UI
             m_LayoutRebuildQueue.RemoveAll(x => x == null || x.IsDestroyed());
             m_GraphicRebuildQueue.RemoveAll(x => x == null || x.IsDestroyed());
 
+            //进入Layout重建阶段，在Layout重建阶段禁止往
+            //Layout重建队列中添加元素。
             m_PerformingLayoutUpdate = true;
 
             m_LayoutRebuildQueue.Sort(s_SortLayoutFunction);
@@ -91,6 +97,8 @@ namespace UnityEngine.UI
             instance.m_LayoutRebuildQueue.Clear();
             m_PerformingLayoutUpdate = false;
 
+            //进入渲染重建阶段，在渲染重建阶段禁止向渲染更新队列中
+            //添加元素
             m_PerformingGraphicUpdate = true;
             for (var i = (int)CanvasUpdate.PreRender; i < (int)CanvasUpdate.MaxUpdateValue; i++)
             {
@@ -112,6 +120,7 @@ namespace UnityEngine.UI
             m_PerformingGraphicUpdate = false;
         }
 
+        //查看当前节点的祖先数量
         private static int ParentCount(Transform child)
         {
             if (child == null)
@@ -127,6 +136,7 @@ namespace UnityEngine.UI
             return count;
         }
 
+        //Layout列表排序算法。祖先数少的靠前
         private static int SortLayoutList(ICanvasElement x, ICanvasElement y)
         {
             Transform t1 = x.transform;
@@ -135,6 +145,7 @@ namespace UnityEngine.UI
             return ParentCount(t1) - ParentCount(t2);
         }
 
+        //注册渲染元素为Layout重建
         public static void RegisterCanvasElementForLayoutRebuild(ICanvasElement element)
         {
             instance.InternalRegisterCanvasElementForLayoutRebuild(element);
@@ -147,6 +158,7 @@ namespace UnityEngine.UI
             m_LayoutRebuildQueue.Add(element);
         }
 
+        //注册渲染元素至渲染重建队列
         public static void RegisterCanvasElementForGraphicRebuild(ICanvasElement element)
         {
             instance.InternalRegisterCanvasElementForGraphicRebuild(element);

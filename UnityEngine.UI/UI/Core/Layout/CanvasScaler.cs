@@ -192,7 +192,7 @@ namespace UnityEngine.UI
                 return;
 
             m_Canvas.scaleFactor = scaleFactor;
-            m_PrevScaleFactor = scaleFactor;
+            m_PrevScaleFactor = scaleFactor; 
         }
 
         protected void SetReferencePixelsPerUnit(float referencePixelsPerUnit)

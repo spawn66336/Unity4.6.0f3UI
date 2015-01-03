@@ -227,6 +227,7 @@ namespace UnityEngine.EventSystems
 
         #endregion
 
+        //获取由root及其所有祖先的GameObject节点列表
         private static void GetEventChain(GameObject root, IList<Transform> eventChain)
         {
             eventChain.Clear();
@@ -243,6 +244,7 @@ namespace UnityEngine.EventSystems
 
         private static readonly ObjectPool<List<IEventSystemHandler>> s_HandlerListPool = new ObjectPool<List<IEventSystemHandler>>(null, l => l.Clear());
 
+        //调用target的GameObject上的所有T类型Component的消息回调
         public static bool Execute<T>(GameObject target, BaseEventData eventData, EventFunction<T> functor) where T : IEventSystemHandler
         {
             var internalHandlers = s_HandlerListPool.Get();
@@ -284,6 +286,8 @@ namespace UnityEngine.EventSystems
         /// </summary>
         private static readonly List<Transform> s_InternalTransformList = new List<Transform>(30);
 
+        //执行T类型事件接口回调，若当前级别没有T类型Component会一直向祖先查找，直到
+        //找到并调用成功
         public static GameObject ExecuteHierarchy<T>(GameObject root, BaseEventData eventData, EventFunction<T> callbackFunction) where T : IEventSystemHandler
         {
             GetEventChain(root, s_InternalTransformList);
@@ -297,6 +301,7 @@ namespace UnityEngine.EventSystems
             return null;
         }
 
+        //查看当前Component是否为T类型子类。
         private static bool ShouldSendToComponent<T>(Component component) where T : IEventSystemHandler
         {
             var valid = component is T;
@@ -312,6 +317,7 @@ namespace UnityEngine.EventSystems
         /// <summary>
         /// Get the specified object's event event.
         /// </summary>
+        /// 获取当前GameObject上的所有T类型Component。
         private static void GetEventList<T>(GameObject go, IList<IEventSystemHandler> results) where T : IEventSystemHandler
         {
             // Debug.LogWarning("GetEventList<" + typeof(T).Name + ">");
@@ -338,6 +344,7 @@ namespace UnityEngine.EventSystems
         /// <summary>
         /// Whether the specified game object will be able to handle the specified event.
         /// </summary>
+        /// 当前GameObject是否含有T类型Component。
         public static bool CanHandleEvent<T>(GameObject go) where T : IEventSystemHandler
         {
             var internalHandlers = s_HandlerListPool.Get();
@@ -350,6 +357,7 @@ namespace UnityEngine.EventSystems
         /// <summary>
         /// Bubble the specified event on the game object, figuring out which object will actually receive the event.
         /// </summary>
+        ///从当前指定的root GameObject查看，并逐步向上级祖先查找，直到查找到一个含有T类型Component节点为止
         public static GameObject GetEventHandler<T>(GameObject root) where T : IEventSystemHandler
         {
             if (root == null)

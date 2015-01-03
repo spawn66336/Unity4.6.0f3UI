@@ -75,13 +75,14 @@ namespace UnityEngine.UI
             m_ColorTweenRunner.Init(this);
         }
 
+        //设置布局、顶点、材质全部需要重建
         public virtual void SetAllDirty()
         {
             SetLayoutDirty();
             SetVerticesDirty();
             SetMaterialDirty();
         }
-
+        //设置布局需要重建
         public virtual void SetLayoutDirty()
         {
             if (!IsActive())
@@ -89,7 +90,7 @@ namespace UnityEngine.UI
 
             LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
         }
-
+        //设置顶点需要重建
         public virtual void SetVerticesDirty()
         {
             if (!IsActive())
@@ -100,7 +101,7 @@ namespace UnityEngine.UI
             if (m_OnDirtyVertsCallback != null)
                 m_OnDirtyVertsCallback();
         }
-
+        //设置材质需要重建
         public virtual void SetMaterialDirty()
         {
             if (!IsActive())
@@ -110,6 +111,7 @@ namespace UnityEngine.UI
             CanvasUpdateRegistry.RegisterCanvasElementForGraphicRebuild(this);
         }
 
+        //RectTransform的纬度变化需要顶点与布局重建
         protected override void OnRectTransformDimensionsChange()
         {
             if (gameObject.activeInHierarchy)
@@ -125,12 +127,14 @@ namespace UnityEngine.UI
             }
         }
 
+        //在Transform的Parent变化之前
         protected override void OnBeforeTransformParentChanged()
         {
             GraphicRegistry.UnregisterGraphicForCanvas(canvas, this);
             LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
         }
 
+        //在Transform的Parent变化后
         protected override void OnTransformParentChanged()
         {
             if (!IsActive())
@@ -144,6 +148,7 @@ namespace UnityEngine.UI
         /// <summary>
         /// Absolute depth of the graphic, used by rendering and events -- lowest to highest.
         /// </summary>
+        
         public int depth { get { return canvasRenderer.absoluteDepth; } }
 
         /// <summary>
@@ -164,6 +169,7 @@ namespace UnityEngine.UI
             }
         }
 
+        //缓存Graphic所在Canvas
         private void CacheCanvas()
         {
             m_Canvas = gameObject.GetComponentInParent<Canvas>();
@@ -172,6 +178,7 @@ namespace UnityEngine.UI
         /// <summary>
         /// UI Renderer component.
         /// </summary>
+        /// 获得当前元素的渲染器
         public CanvasRenderer canvasRenderer
         {
             get
@@ -182,6 +189,7 @@ namespace UnityEngine.UI
             }
         }
 
+        //获取默认材质
         public virtual Material defaultMaterial
         {
             get { return defaultGraphicMaterial; }
@@ -190,6 +198,7 @@ namespace UnityEngine.UI
         /// <summary>
         /// Returns the material used by this Graphic.
         /// </summary>
+        /// 获取当前Graphic元素材质
         public virtual Material material
         {
             get
